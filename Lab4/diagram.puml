@@ -1,0 +1,54 @@
+@startuml
+title Activity Diagram: Place Order Process
+
+|User|
+|System|
+|External Bank|
+
+|User|
+start
+:Browse Catalog;
+:Select Products;
+:Go to Checkout;
+
+|System|
+:Validate Cart Items;
+if (Items Available?) then (no)
+  :Show "Out of Stock";
+  stop
+else (yes)
+  :Calculate Total Amount;
+  :Request Payment Details;
+endif
+
+|User|
+:Enter Card Details;
+:Confirm Payment;
+
+|System|
+:Send Payment Request;
+
+|External Bank|
+:Process Transaction;
+if (Payment Success?) then (no)
+  |System|
+  :Show "Payment Declined";
+  :Ask to Retry;
+  stop
+else (yes)
+  |System|
+  :Set Order Status "Paid";
+  
+  fork
+    :Save Order to Database;
+    :Update Warehouse Stock;
+  fork again
+    :Send Email Receipt;
+  end fork
+  
+  :Clear User Cart;
+  :Show "Thank You" Page;
+endif
+
+stop
+@enduml
