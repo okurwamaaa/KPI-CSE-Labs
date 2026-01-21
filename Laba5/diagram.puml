@@ -1,0 +1,58 @@
+@startuml
+title Component Diagram: Online Store Architecture
+skinparam componentStyle uml2
+
+actor "Customer" as user
+
+package "Online Store System" {
+    
+    component "Web Client\n(Single Page App)" as ui
+    component "API Gateway" as gateway
+    
+    package "Application Layer" {
+        component "Auth Service" as auth
+        component "Catalog Service" as catalog
+        component "Order Service" as order
+    }
+    
+    package "Data Layer" {
+        component "Database\n(PostgreSQL)" as db
+    }
+}
+
+package "External Systems" {
+    component "Payment Provider\n(Stripe/LiqPay)" as stripe
+    component "Email Service\n(SendGrid)" as mail
+}
+
+' Interfaces definitions
+interface "HTTPS / REST" as rest
+interface "JDBC / SQL" as jdbc
+interface "Payment API" as pay_api
+interface "SMTP / Webhook" as mail_api
+
+' Connections
+user ..> ui : Uses Browser
+
+' Client to Gateway
+ui --( rest
+rest - gateway
+
+' Gateway to Services
+gateway --> auth : /auth
+gateway --> catalog : /products
+gateway --> order : /orders
+
+' Services to Database
+auth --( jdbc
+catalog --( jdbc
+order --( jdbc
+jdbc - db
+
+' External Integrations
+order --( pay_api : Process Payment
+pay_api - stripe
+
+order ..> mail : Trigger Notification
+mail --( mail_api
+@enduml
