@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+actor "Guest" as g
+actor "Registered User" as u
+actor "Administrator" as a
+actor "Payment System" as ps <<External System>>
+actor "Email Service" as es <<External System>>
+
+g <|-- u
+u <|-- a
+
+package "Online Store System" {
+  usecase "Search Products" as UC1
+  usecase "Register / Login" as UC2
+  usecase "Add to Cart" as UC3
+  usecase "Place Order" as UC4
+  usecase "Process Payment" as UC5
+  usecase "Apply Discount" as UC6
+  usecase "Manage Products" as UC7
+  usecase "Send Notifications" as UC8
+}
+
+g --> UC1
+g --> UC2
+u --> UC3
+u --> UC4
+
+UC4 ..> UC5 : <<include>>
+UC4 <.. UC6 : <<extend>>
+UC4 ..> UC8 : <<include>>
+
+UC5 --> ps
+UC8 --> es
+
+a --> UC7
+@enduml
